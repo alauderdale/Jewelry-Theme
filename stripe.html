@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+ <script src="http://code.jquery.com/jquery-latest.js"></script> 
+  <script src="js/scripts.js"></script> 
+   <meta name="viewport" content="width=device-width,initial-scale=1">
+   <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
+   <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
+   <script type="text/javascript">
+       // this identifies your website in the createToken call below
+       Stripe.setPublishableKey('pk_kEv8yrr4nawbmfURVFQX6Bt3zYfyh');
+       
+       function stripeResponseHandler(status, response) {
+                      if (response.error) {
+                          // re-enable the submit button
+                          $('.submit-button').removeAttr("disabled");
+                          // show the errors on the form
+                          $(".payment-errors").html(response.error.message);
+                      } else {
+                          var form$ = $("#payment-form");
+                          // token contains id, last4, and card type
+                          var token = response['id'];
+                          // insert the token into the form so it gets submitted to the server
+                          form$.append("<input type='hidden' name='stripeToken' value='" + token + "' />");
+                          // and submit
+                          form$.get(0).submit();
+                      }
+                  }
+       
+       $(document).ready(function() {
+         $("#payment-form").submit(function(event) {
+           // disable the submit button to prevent repeated clicks
+           $('.submit-button').attr("disabled", "disabled");
+       
+           Stripe.createToken({
+               number: $('.card-number').val(),
+               cvc: $('.card-cvc').val(),
+               exp_month: $('.card-expiry-month').val(),
+               exp_year: $('.card-expiry-year').val()
+           }, stripeResponseHandler);
+       
+           // prevent the form from submitting with the default action
+           return false;
+         });
+       });
+       
+       if (window.location.protocol === 'file:') {
+                     alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
+                 }
+   </script>
+</head>
+<body>
+	<div id="header">
+		<div id="nav">
+			<a class="logo" href="homepage.html"><img src="images/logo.png"/></a>
+			<ul id="top-nav">
+				<li><a href="about.html">About</a></li>
+				<li><a href="news.html">News</a></li>
+				<li><a href="#">Contact</a></li>
+				<li><a href="#">Consign</a></li>
+			</ul>
+		</div><!--end nav-->
+	</div> <!--end header-->
+	<div class="header-padding"></div>
+	<div id="container">
+		<div class="main">
+			<h1>Charge $10 with Stripe</h1>
+			      <!-- to display errors returned by createToken -->
+			      <span class="payment-errors"></span>
+			      <form action="" method="POST" id="payment-form">
+			          <div class="form-row">
+			              <label>Card Number</label>
+			              <input type="text" size="20" autocomplete="off" class="card-number" />
+			          </div>
+			          <div class="form-row">
+			              <label>CVC</label>
+			              <input type="text" size="4" autocomplete="off" class="card-cvc" />
+			          </div>
+			          <div class="form-row">
+			              <label>Expiration (MM/YYYY)</label>
+			              <input type="text" size="2" class="card-expiry-month"/>
+			              <span> / </span>
+			              <input type="text" size="4" class="card-expiry-year"/>
+			          </div>
+			          <button type="submit" class="submit-button">Submit Payment</button>
+			      </form>		</div><!--end main-->
+		<div class="clearfix"></div>
+		<div id="footer">
+		<p>All Rights Reserved &copy; 2011</p>
+		</div><!--end footer-->
+	</div><!--end container-->
+</body>
+</html>
+
